@@ -27,7 +27,6 @@ public class LoudnessManager : MonoBehaviour
 
     public void MakeNoise(InputAction.CallbackContext context)
     {
-        print("running");
         if (context.performed)
         {
             MakeNoiseAction?.Invoke(true);

@@ -10,19 +10,18 @@ public class ListeningEnemy : MonoBehaviour
     [SerializeField] private float detectionRadius = 5f; // Radius to checkl for light sources
     [SerializeField] private LayerMask lightLayer; // Layer for light emitting objects
     [SerializeField] public float lightIntensity = 1f; // Minimum intensity of light source to detect
-    [SerializeField] private Vector2 pathfindingOffset = new Vector2(5, 5); // Offset for pathfinding
-    public float currentIntensity = 0f; // Current intensity of light source
-    public bool isInLight;
-    public Transform player;
-    public NavMeshAgent agent;
-    public bool isInPlayerSight;
     [SerializeField] private GameObject _enemy;
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private float stoppingDistance = 1f;
+    [SerializeField] public float currentIntensity = 0f; // Current intensity of light source
+    [SerializeField] public bool isInPlayerSight;
+
+    private float aggressivness;
     private Transform _player;
     private Rigidbody _rb;
     private bool _followPlayer;
     private bool _makingNoise;
+    private SphereCollider _listeningRadius;
     
 
     [SerializeField] private float followSpeed = 5f;
@@ -44,13 +43,23 @@ public class ListeningEnemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        aggressivness = 0;
         _rb = GetComponent<Rigidbody>();
+        _listeningRadius = GetComponent<SphereCollider>();
+        _listeningRadius.radius = detectionRadius;
         StartCoroutine(DetectLightReactToLight());
+    }
+
+    private void FixedUpdate()
+    {
+        aggressivness += 1 * Time.deltaTime;
+        print(aggressivness);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Checking if the player is in range, making noise
         if (_followPlayer && _makingNoise && _player)
         {
             if (isInPlayerSight)
@@ -65,7 +74,8 @@ public class ListeningEnemy : MonoBehaviour
             _agent.ResetPath();
         }
     }
-
+    
+    // Checks if the enemy is in the player sound range
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
