@@ -6,6 +6,10 @@ public class CameraController : MonoBehaviour
 {
     public Transform player;
     public float mouseSense = 100f;
+    private Vector2 currentInput;
+    private Vector2 velocity = Vector2.zero;
+    public float smoothSpeed = 0.1f;  // Smooth speed for camera rotation
+    // Used for smoothing input
 
     private float xRotation = 0f;
     private Vector2 input;
@@ -17,9 +21,11 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-
-        float mouseX = input.x * mouseSense * Time.deltaTime;
-        float mouseY = input.y * mouseSense * Time.deltaTime;
+        currentInput.x = Mathf.SmoothDamp(currentInput.x, input.x, ref velocity.x, smoothSpeed);
+        currentInput.y = Mathf.SmoothDamp(currentInput.y, input.y, ref velocity.y, smoothSpeed);
+        
+        float mouseX = currentInput.x * mouseSense * Time.deltaTime;
+        float mouseY = currentInput.y * mouseSense * Time.deltaTime;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);

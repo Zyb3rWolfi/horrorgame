@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +16,16 @@ public class PlayerController : MonoBehaviour
 
     private float xRotation = 0f;
     private Vector2 input;
+
+    private void OnEnable()
+    {
+        ListeningEnemy.KillPlayer += KillPlayer;
+    }
+
+    private void OnDisable()
+    {
+        ListeningEnemy.KillPlayer -= KillPlayer;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +49,11 @@ public class PlayerController : MonoBehaviour
         
         moveInput = context.ReadValue<Vector2>();
         
+    }
+
+    private void KillPlayer()
+    {
+        Destroy(this);
     }
 
     public void HandleJumpInput(InputAction.CallbackContext context)

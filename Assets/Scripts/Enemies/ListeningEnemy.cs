@@ -6,16 +6,22 @@ using UnityEngine.AI;
 
 public class ListeningEnemy : MonoBehaviour
 {
+    
     public static Action EnemyInLight;
+    public static Action KillPlayer;
+    [Header("Detection & Pathfinding")]
     [SerializeField] private float detectionRadius = 5f; // Radius to checkl for light sources
-    [SerializeField] private LayerMask lightLayer; // Layer for light emitting objects
-    [SerializeField] public float lightIntensity = 1f; // Minimum intensity of light source to detect
-    [SerializeField] private GameObject _enemy;
+    [SerializeField] public bool isInPlayerSight;
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private float stoppingDistance = 1f;
+    [SerializeField] private float followSpeed = 5f;
+    [Header("Light Detection")]
+    [SerializeField] private LayerMask lightLayer; // Layer for light emitting objects
+    [SerializeField] public float lightIntensity = 1f; // Minimum intensity of light source to detect
     [SerializeField] public float currentIntensity = 0f; // Current intensity of light source
-    [SerializeField] public bool isInPlayerSight;
-
+    [Header("Game Objects")]
+    [SerializeField] private GameObject _enemy;
+    
     private float aggressivness;
     private Transform _player;
     private Rigidbody _rb;
@@ -23,8 +29,8 @@ public class ListeningEnemy : MonoBehaviour
     private bool _makingNoise;
     private SphereCollider _listeningRadius;
     
+    
 
-    [SerializeField] private float followSpeed = 5f;
 
     private void OnEnable()
     {
@@ -49,29 +55,40 @@ public class ListeningEnemy : MonoBehaviour
         _listeningRadius.radius = detectionRadius;
         StartCoroutine(DetectLightReactToLight());
     }
-
-    private void FixedUpdate()
-    {
-        aggressivness += 1 * Time.deltaTime;
-        print(aggressivness);
-    }
+    
 
     // Update is called once per frame
     void Update()
     {
-        // Checking if the player is in range, making noise
-        if (_followPlayer && _makingNoise && _player)
+        if (_player)
         {
-            if (isInPlayerSight)
+            float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
+            if (distanceToPlayer <= stoppingDistance + 2 && !isInPlayerSight)
             {
-                _agent.ResetPath();
-                return;
+                print("Check 1");
+                _agent.speed = followSpeed;
+                // Set the player's position as the NavMeshAgent's destination
+                _agent.SetDestination(_player.position);
             }
-            FollowPlayer();
-        }
-        else
-        {
-            _agent.ResetPath();
+            // Checking if the player is in range, making noise
+            else if (_followPlayer && _makingNoise && _player)
+            {
+                print("check 4");
+                if (isInPlayerSight)
+                {
+                    print("check 2");
+                    _agent.ResetPath();
+                    return;
+                }
+                FollowPlayer();
+            }
+            else
+            {
+                print("check 3");
+                _agent.ResetPath();
+            }
+            
+            
         }
     }
     
@@ -86,12 +103,23 @@ public class ListeningEnemy : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter(Collision other)
+    {
+        print("collided");
+        if (other.gameObject.CompareTag("Player"))
+        {
+            KillPlayer?.Invoke();
+        }
+    }
+
     private void FollowPlayer()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
-
+        
         if (distanceToPlayer > stoppingDistance)
         {
+            float targetSpeed = Mathf.Lerp(0, followSpeed, distanceToPlayer / detectionRadius);
+            _agent.speed = targetSpeed;
             // Set the player's position as the NavMeshAgent's destination
             _agent.SetDestination(_player.position);
         }
@@ -99,6 +127,7 @@ public class ListeningEnemy : MonoBehaviour
         {
             // Stop moving if within stopping distance
             _agent.ResetPath();
+            _agent.speed = 0;
         }
     }
 
@@ -177,4 +206,6 @@ public class ListeningEnemy : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
+
+
 }
