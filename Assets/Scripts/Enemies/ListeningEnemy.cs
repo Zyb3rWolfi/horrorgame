@@ -8,7 +8,6 @@ public class ListeningEnemy : MonoBehaviour
 {
     
     public static Action EnemyInLight;
-    public static Action KillPlayer;
     [Header("Detection & Pathfinding")]
     [SerializeField] private float detectionRadius = 5f; // Radius to checkl for light sources
     [SerializeField] public bool isInPlayerSight;
@@ -63,7 +62,7 @@ public class ListeningEnemy : MonoBehaviour
         if (_player)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
-            if (distanceToPlayer <= stoppingDistance + 2 && !isInPlayerSight)
+            if (distanceToPlayer <= stoppingDistance + 1 && !isInPlayerSight)
             {
                 print("Check 1");
                 _agent.speed = followSpeed;
@@ -89,6 +88,10 @@ public class ListeningEnemy : MonoBehaviour
             }
             
             
+        }else
+        {
+            print("check 3");
+            _agent.ResetPath();
         }
     }
     
@@ -102,15 +105,7 @@ public class ListeningEnemy : MonoBehaviour
             _player = other.gameObject.transform;
         }
     }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        print("collided");
-        if (other.gameObject.CompareTag("Player"))
-        {
-            KillPlayer?.Invoke();
-        }
-    }
+    
 
     private void FollowPlayer()
     {
@@ -172,6 +167,9 @@ public class ListeningEnemy : MonoBehaviour
                     currentIntensity += intensity;
                 }
                 
+            } else if (!light.isActiveAndEnabled)
+            {
+                isInPlayerSight = false;
             }
         }
     }
@@ -196,6 +194,7 @@ public class ListeningEnemy : MonoBehaviour
         }
         else
         {
+            isInPlayerSight = false;
             return true;
         }
     }

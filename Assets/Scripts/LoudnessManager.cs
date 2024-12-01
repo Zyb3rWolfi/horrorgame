@@ -9,20 +9,39 @@ public class LoudnessManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private SphereCollider soundCollider;
     [SerializeField] private float walkingRadius;
+    [SerializeField] private float crouchingRadius;
     private int decibals = 0;
 
     public static Action<bool> MakeNoiseAction;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    private void OnEnable()
+    {
+        Crouch.playerCrouch += ManageRadius;
+    }
+
+    private void OnDisable()
+    {
+        Crouch.playerCrouch -= ManageRadius;
+    }
+
+    private void ManageRadius(bool isCrouching)
+    {
+        switch (isCrouching)
+        {
+            case true:
+                soundCollider.radius = crouchingRadius;
+                break;
+            case false:
+                soundCollider.radius = walkingRadius;
+                break;
+                
+        }
+    }
+
     void Start()
     {
         text.text = "Loudness: " + decibals;
         soundCollider.radius = walkingRadius;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void MakeNoise(InputAction.CallbackContext context)

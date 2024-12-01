@@ -5,12 +5,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float crouchSpeed;
+    [Header("Player Checks")]
     [SerializeField] private bool isGrounded;
+    [SerializeField] private bool isCrouching;
+    [Header("Camera Settings")]
     [SerializeField] private Transform camera;
+    [SerializeField] private float smoothSpeed;
+    
     private Rigidbody rb;
     private Vector2 moveInput;
+    private Vector2 _currentInput;  
     
     public float mouseSense = 100f;
 
@@ -19,12 +27,24 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        ListeningEnemy.KillPlayer += KillPlayer;
+        Crouch.playerCrouch += ManageCrouchSpeed;
     }
 
     private void OnDisable()
     {
-        ListeningEnemy.KillPlayer -= KillPlayer;
+        Crouch.playerCrouch -= ManageCrouchSpeed;
+    }
+
+    private void ManageCrouchSpeed(bool isCrouching)
+    {
+        if (isCrouching)
+        {
+            moveSpeed -= crouchSpeed;
+        }
+        else
+        {
+            moveSpeed += crouchSpeed;
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -53,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
     private void KillPlayer()
     {
-        Destroy(this);
+        Destroy(this.gameObject);
     }
 
     public void HandleJumpInput(InputAction.CallbackContext context)
@@ -73,6 +93,7 @@ public class PlayerController : MonoBehaviour
          return Physics.Raycast(transform.position, Vector3.down, 1.1f);
     }
     
+    /*
     public void HandleCamera(InputAction.CallbackContext context)
     {
         input = context.ReadValue<Vector2>();
@@ -85,6 +106,7 @@ public class PlayerController : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         
-    }
+    }*/
+    
 
 }
