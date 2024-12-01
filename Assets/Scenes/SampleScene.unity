@@ -168,7 +168,7 @@ MonoBehaviour:
   isInPlayerSight: 0
   _agent: {fileID: 56677224}
   stoppingDistance: 1.5
-  followSpeed: 4
+  followSpeed: 3
   lightLayer:
     serializedVersion: 2
     m_Bits: 128
