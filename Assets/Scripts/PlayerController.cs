@@ -18,12 +18,15 @@ public class PlayerController : MonoBehaviour
     
     private Rigidbody rb;
     private Vector2 moveInput;
-    private Vector2 _currentInput;  
+    private Vector2 _currentInput;
+    private bool isWalking;
     
     public float mouseSense = 100f;
 
     private float xRotation = 0f;
     private Vector2 input;
+
+    public static Action playerWalking;
 
     private void OnEnable()
     {
@@ -61,6 +64,10 @@ public class PlayerController : MonoBehaviour
         
         Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y).normalized;
         rb.MovePosition(transform.position + transform.TransformDirection(moveDirection) * moveSpeed * Time.deltaTime);
+        if (isWalking)
+        {
+            playerWalking?.Invoke();
+        }
         
     }
 
@@ -68,7 +75,8 @@ public class PlayerController : MonoBehaviour
     {
         
         moveInput = context.ReadValue<Vector2>();
-        
+        isWalking = moveInput.magnitude > 0;
+
     }
 
     private void KillPlayer()
@@ -92,21 +100,5 @@ public class PlayerController : MonoBehaviour
             
          return Physics.Raycast(transform.position, Vector3.down, 1.1f);
     }
-    
-    /*
-    public void HandleCamera(InputAction.CallbackContext context)
-    {
-        input = context.ReadValue<Vector2>();
-        
-        float mouseX = input.x * mouseSense * Time.deltaTime;
-        transform.Rotate(Vector3.up * mouseX);
-        
-        float mouseY = input.y * mouseSense * Time.deltaTime;
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        
-    }*/
-    
 
 }
