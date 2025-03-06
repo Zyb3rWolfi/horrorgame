@@ -20,9 +20,9 @@ public class ListeningEnemy : MonoBehaviour
     [SerializeField] public float currentIntensity = 0f; // Current intensity of light source
     [Header("Game Objects")]
     [SerializeField] private GameObject _enemy;
+    [SerializeField] private Transform _player;
     
     private float aggressivness;
-    private Transform _player;
     private Rigidbody _rb;
     private bool _followPlayer;
     private bool _makingNoise;
@@ -90,7 +90,7 @@ public class ListeningEnemy : MonoBehaviour
             
         }else
         {
-            print("check 3");
+            print("check 4");
             _agent.ResetPath();
         }
     }
